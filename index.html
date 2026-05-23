@@ -181,6 +181,23 @@
       max-width: 940px;
     }
 
+    .author-credit {
+      margin-top: 40px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      max-width: 940px;
+      font-size: clamp(17px, 1.6vw, 22px);
+      line-height: 1.35;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: -.01em;
+    }
+
+    .author-credit strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
     .kicker {
       display: inline-flex;
       align-items: center;
@@ -773,6 +790,7 @@
 
     @media (max-width: 900px) {
       .slide { padding: 32px 24px 80px; }
+      .author-credit { margin-top: 28px; padding-top: 18px; }
       .grid-2, .grid-3, .compare { grid-template-columns: 1fr; }
       .card p, .card li { font-size: 19px; }
       .controls {
@@ -853,6 +871,7 @@
         <div class="kicker">Boas práticas de IA no trabalho</div>
         <h1>IA no trabalho:<br><span class="accent">como usar sem terceirizar o cérebro</span></h1>
         <p class="lead">Uma sessão prática sobre LLMs, prompts, contexto, limites e senso crítico para usar IA com qualidade, velocidade e responsabilidade.</p>
+        <p class="author-credit">Por <strong>Rafael Medeiros</strong></p>
         <div class="speaker-note">Abra com energia. Diga que a aula não é sobre “virar guru de IA”, mas sobre evitar o uso tosco: copiar, colar e torcer. A promessa é simples: sair sabendo usar IA como par técnico.</div>
       </div>
       <div class="footer"><span>Use ← → ou espaço · N notas · F tela cheia</span><span>01</span></div>
