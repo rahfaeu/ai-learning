@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>IA no trabalho: como usar sem terceirizar o cérebro</title>
   <meta name="description" content="Aula rápida de 45 minutos sobre boas práticas de IA no ambiente profissional." />
+  <meta property="og:title" content="IA no trabalho: como usar sem terceirizar o cérebro" />
+  <meta property="og:description" content="Aula rápida de 45 minutos sobre boas práticas de IA no ambiente profissional." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="IA no trabalho: como usar sem terceirizar o cérebro" />
+  <meta name="twitter:description" content="Aula rápida de 45 minutos sobre boas práticas de IA no ambiente profissional." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0' stop-color='%2300d17d'/%3E%3Cstop offset='1' stop-color='%237cc7ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #0b0d10;
@@ -12,7 +23,7 @@
       --bg-card: #171c23;
       --text: #f2f5f8;
       --muted: #a7b1bd;
-      --subtle: #6f7b88;
+      --subtle: #8494a3;
       --accent: #00d17d;
       --accent-2: #80ffc4;
       --danger: #ff5c7a;
@@ -78,13 +89,19 @@
 
     .slide.active {
       display: grid;
-      grid-template-rows: auto 1fr auto;
+      grid-template-rows: auto minmax(0, 1fr) auto;
       gap: 28px;
+      min-height: 0;
     }
 
     @keyframes enter {
       from { opacity: 0; transform: translateY(10px) scale(.995); }
       to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide { animation: none; }
+      .progress-bar, .notes-panel, .pagination-dot { transition: none; }
     }
 
     .topbar {
@@ -126,6 +143,9 @@
       max-width: 1180px;
       width: 100%;
       margin: 0 auto;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .content.wide { max-width: 1300px; }
@@ -385,19 +405,156 @@
 
     button:hover { background: rgba(255,255,255,.14); }
 
-    .speaker-note {
-      display: none;
-      margin-top: 24px;
-      padding: 18px 20px;
-      border-left: 4px solid var(--accent);
-      background: rgba(0, 209, 125, .08);
-      border-radius: 14px;
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1.35;
+    button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
-    body.show-notes .speaker-note { display: block; }
+    button[aria-pressed="true"] {
+      background: rgba(0, 209, 125, .18);
+      border-color: rgba(0, 209, 125, .45);
+      color: var(--accent-2);
+    }
+
+    button:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .speaker-note { display: none; }
+
+    .slide-title-bar {
+      position: fixed;
+      left: 18px;
+      bottom: 14px;
+      z-index: 15;
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: .02em;
+      pointer-events: none;
+    }
+
+    .notes-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(380px, 92vw);
+      height: 100%;
+      background: rgba(11, 13, 16, .96);
+      border-left: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .25s ease;
+      padding: 24px;
+    }
+
+    body.show-notes .notes-panel { transform: translateX(0); }
+
+    .notes-panel-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .notes-panel-label {
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--accent-2);
+    }
+
+    .notes-panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .notes-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.45;
+      border-left: 4px solid var(--accent);
+      padding-left: 16px;
+    }
+
+    .notes-panel-empty {
+      color: var(--subtle);
+      font-style: italic;
+    }
+
+    .pagination {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 15;
+      max-width: calc(100vw - 200px);
+      overflow-x: auto;
+      padding: 4px 8px;
+      scrollbar-width: none;
+    }
+
+    .pagination::-webkit-scrollbar { display: none; }
+
+    .pagination-dot {
+      flex: 0 0 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: none;
+      padding: 0;
+      background: rgba(255,255,255,.18);
+      cursor: pointer;
+      transition: background .2s ease, transform .2s ease;
+    }
+
+    .pagination-dot.active {
+      background: var(--accent);
+      transform: scale(1.2);
+    }
+
+    .pagination-dot:hover { background: rgba(255,255,255,.35); }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .template-pre {
+      margin-top: 26px;
+      font-size: clamp(13px, 1.05vw, 17px);
+      line-height: 1.35;
+      padding: 18px;
+    }
+
+    .template-heading {
+      font-size: clamp(34px, 4vw, 58px);
+      max-width: 900px;
+    }
+
+    .template-lead {
+      font-size: clamp(18px, 1.6vw, 24px);
+      margin-top: 16px;
+      max-width: 860px;
+    }
 
     .timeline {
       display: grid;
@@ -416,14 +573,144 @@
       color: var(--muted);
     }
 
-    .formula {
-      font-size: clamp(32px, 4vw, 58px);
-      line-height: 1.08;
-      letter-spacing: -.045em;
-      padding: 34px;
+    .slide[data-title="LLM"] .lead { margin-top: 22px; }
+
+    .llm-flow {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr) 28px minmax(0, 1fr);
+      align-items: stretch;
+      gap: 0 6px;
+      margin-top: 22px;
+      width: 100%;
+      max-height: min(320px, 42vh);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .llm-flow-node {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+      min-height: 0;
+      padding: 16px 18px;
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.06);
+      border-radius: 20px;
+      background: rgba(23, 28, 35, .82);
+      box-shadow: var(--shadow);
+    }
+
+    .llm-flow-node .num {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      flex: none;
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .llm-flow-node[data-step="1"] { border-color: rgba(124, 199, 255, .35); }
+    .llm-flow-node[data-step="2"] { border-color: rgba(255, 209, 102, .35); }
+    .llm-flow-node[data-step="3"] { border-color: rgba(0, 209, 125, .4); }
+    .llm-flow-node[data-step="4"] {
+      border-color: rgba(0, 209, 125, .45);
+      background: rgba(0, 209, 125, .06);
+    }
+
+    .llm-flow-title {
+      font-size: clamp(15px, 1.35vw, 20px);
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      padding-right: 32px;
+    }
+
+    .llm-flow-node[data-step="1"] .llm-flow-title { color: var(--blue); }
+    .llm-flow-node[data-step="2"] .llm-flow-title { color: var(--warn); }
+    .llm-flow-node[data-step="3"] .llm-flow-title,
+    .llm-flow-node[data-step="4"] .llm-flow-title { color: var(--accent-2); }
+
+    .llm-flow-desc {
+      margin: 0;
+      font-size: clamp(12px, 1.1vw, 16px);
+      line-height: 1.25;
+      color: var(--muted);
+    }
+
+    .llm-flow-pre {
+      margin: 4px 0 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: clamp(11px, 0.95vw, 14px);
+      line-height: 1.35;
+      max-height: 4.5em;
+      overflow: hidden;
+    }
+
+    .llm-flow-out { color: #c8f5df; }
+
+    .llm-flow-bars {
+      display: grid;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .llm-flow-bar {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(11px, 0.95vw, 13px);
+      font-family: var(--mono);
+      color: var(--muted);
+    }
+
+    .llm-flow-bar.is-top { color: var(--accent-2); font-weight: 700; }
+
+    .llm-flow-bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden;
+    }
+
+    .llm-flow-bar-fill {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: rgba(255, 209, 102, .55);
+    }
+
+    .llm-flow-bar.is-top .llm-flow-bar-fill {
+      background: linear-gradient(90deg, var(--warn), var(--accent));
+    }
+
+    .llm-flow-chip {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: rgba(0, 209, 125, .14);
+      border: 1px solid rgba(0, 209, 125, .4);
+      color: var(--accent-2);
+      font-family: var(--mono);
+      font-size: clamp(14px, 1.2vw, 18px);
+      font-weight: 700;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+
+    .llm-flow-arrow {
+      align-self: center;
+      justify-self: center;
+      width: 20px;
+      height: 20px;
+      border-top: 2px solid var(--subtle);
+      border-right: 2px solid var(--subtle);
+      transform: rotate(45deg);
+      margin-top: 8px;
     }
 
     .mini {
@@ -447,16 +734,68 @@
     .source-list a:hover { text-decoration: underline; }
 
     @media (max-width: 900px) {
-      .slide { padding: 32px 24px 68px; }
+      .slide { padding: 32px 24px 80px; }
       .grid-2, .grid-3, .compare { grid-template-columns: 1fr; }
       .card p, .card li { font-size: 19px; }
-      .controls { display: none; }
+      .controls {
+        right: 12px;
+        bottom: 52px;
+        gap: 6px;
+      }
+      .controls button {
+        padding: 8px 11px;
+        font-size: 13px;
+      }
+      .slide-title-bar {
+        left: 12px;
+        bottom: 52px;
+        font-size: 12px;
+        max-width: 40vw;
+      }
+      .pagination {
+        bottom: 10px;
+        max-width: calc(100vw - 24px);
+      }
       .timeline { grid-template-columns: 90px 1fr; font-size: 19px; }
+      body.show-notes .notes-panel { width: 100vw; }
+      .llm-flow {
+        grid-template-columns: 1fr;
+        max-height: none;
+        gap: 0;
+      }
+      .llm-flow-arrow {
+        width: 14px;
+        height: 14px;
+        margin: 4px auto;
+        transform: rotate(135deg);
+      }
+      .llm-flow-node { padding: 14px 16px; }
+    }
+
+    @media (max-height: 720px) {
+      .slide { padding: 28px 40px 64px; gap: 16px; }
+      .slide.active { gap: 16px; }
+      h1 { font-size: clamp(36px, 5.5vw, 72px); }
+      h2 { font-size: clamp(30px, 4.2vw, 56px); }
+      .lead { margin-top: 16px; font-size: clamp(18px, 1.8vw, 24px); }
+      .quote { padding: 24px; font-size: clamp(24px, 3.5vw, 48px); }
+      .quote small { font-size: 17px; margin-top: 16px; }
+      .grid-2, .grid-3, .compare { gap: 14px; margin-top: 16px !important; }
+      .card { padding: 18px; }
+      .card p, .card li { font-size: 17px; }
+      .big-list { margin-top: 16px; gap: 10px; }
+      .big-list li { padding: 12px 16px; font-size: clamp(18px, 2vw, 26px); }
+      .slide[data-title="LLM"] .lead { margin-top: 14px; }
+      .llm-flow { margin-top: 14px; max-height: 240px; }
+      .llm-flow-node { padding: 12px 14px; }
+      .llm-flow-pre { padding: 8px 10px; max-height: 3.6em; }
+      .pill { padding: 8px 12px; font-size: 15px; }
+      .timeline { margin-top: 16px; font-size: 18px; gap: 10px 16px; }
     }
 
     @media print {
       html, body { overflow: visible; height: auto; background: #fff; color: #111; }
-      body::before, body::after, .controls, .progress { display: none; }
+      body::before, body::after, .controls, .progress, .notes-panel, .pagination, .slide-title-bar { display: none; }
       .deck { height: auto; }
       .slide, .slide.active {
         display: block;
@@ -479,7 +818,7 @@
         <p class="lead">Uma sessão prática sobre LLMs, prompts, contexto, limites e senso crítico para usar IA com qualidade, velocidade e responsabilidade.</p>
         <div class="speaker-note">Abra com energia. Diga que a aula não é sobre “virar guru de IA”, mas sobre evitar o uso tosco: copiar, colar e torcer. A promessa é simples: sair sabendo usar IA como par técnico.</div>
       </div>
-      <div class="footer"><span>Use ← → ou espaço para navegar · N mostra notas</span><span>01</span></div>
+      <div class="footer"><span>Use ← → ou espaço · N notas · F tela cheia</span><span>01</span></div>
     </section>
 
     <section class="slide" data-title="A tese" data-min="2-4">
@@ -541,7 +880,41 @@ Minha leitura é:
         <div class="kicker">O que é uma LLM?</div>
         <h2>Uma máquina de <span class="accent">predição de linguagem</span></h2>
         <p class="lead">Ela recebe um contexto e calcula qual continuação é mais provável, útil ou coerente com a instrução.</p>
-        <div class="formula">Contexto → Probabilidades → Próximo token → Resposta</div>
+        <div class="llm-flow" role="img" aria-label="Fluxo: contexto, probabilidades, próximo token, resposta">
+          <div class="llm-flow-node" data-step="1">
+            <span class="num">1</span>
+            <h3 class="llm-flow-title">Contexto</h3>
+            <p class="llm-flow-desc">Prompt + histórico + instrução</p>
+            <pre class="llm-flow-pre">Crie uma tabela incremental no dbt.
+Contexto: projeto analytics…</pre>
+          </div>
+          <div class="llm-flow-arrow" aria-hidden="true"></div>
+          <div class="llm-flow-node" data-step="2">
+            <span class="num">2</span>
+            <h3 class="llm-flow-title">Probabilidades</h3>
+            <p class="llm-flow-desc">Distribuição sobre candidatos</p>
+            <div class="llm-flow-bars">
+              <div class="llm-flow-bar"><span class="llm-flow-bar-label">uma</span><span class="llm-flow-bar-track"><span class="llm-flow-bar-fill" style="width:18%"></span></span></div>
+              <div class="llm-flow-bar is-top"><span class="llm-flow-bar-label">tabela</span><span class="llm-flow-bar-track"><span class="llm-flow-bar-fill" style="width:72%"></span></span></div>
+              <div class="llm-flow-bar"><span class="llm-flow-bar-label">modelo</span><span class="llm-flow-bar-track"><span class="llm-flow-bar-fill" style="width:34%"></span></span></div>
+            </div>
+          </div>
+          <div class="llm-flow-arrow" aria-hidden="true"></div>
+          <div class="llm-flow-node" data-step="3">
+            <span class="num">3</span>
+            <h3 class="llm-flow-title">Próximo token</h3>
+            <p class="llm-flow-desc">Um passo por vez</p>
+            <span class="llm-flow-chip">tabela</span>
+          </div>
+          <div class="llm-flow-arrow" aria-hidden="true"></div>
+          <div class="llm-flow-node" data-step="4">
+            <span class="num">4</span>
+            <h3 class="llm-flow-title">Resposta</h3>
+            <p class="llm-flow-desc">Texto montado passo a passo</p>
+            <pre class="llm-flow-pre llm-flow-out">A tabela incremental no dbt
+pode usar merge…</pre>
+          </div>
+        </div>
         <div class="speaker-note">Cuidado com “ela sabe”. Diga: ela não sabe como uma pessoa; ela modela padrões de linguagem. É muito poderosa, mas não é garantia de verdade.</div>
       </div>
       <div class="footer"><span></span><span>05</span></div>
@@ -841,7 +1214,7 @@ Conversa 5: preparar comunicação</pre>
       <div class="footer"><span></span><span>18</span></div>
     </section>
 
-    <section class="slide" data-title="Encerramento" data-min="46-45">
+    <section class="slide" data-title="Encerramento" data-min="44-45">
       <div class="topbar"><div class="brand"><span class="brand-mark"></span> Fechamento</div><div class="timer-tag">Fechamento</div></div>
       <div class="content narrow">
         <div class="quote">Use IA para acelerar o trabalho.<br><span class="accent">Não use IA para abandonar o pensamento.</span><small>Leia. Questione. Valide. Edite. Assuma.</small></div>
@@ -851,39 +1224,45 @@ Conversa 5: preparar comunicação</pre>
     </section>
 
     <section class="slide" data-title="Prompt template" data-min="extra">
-        <div class="topbar"><div class="brand"><span class="brand-mark"></span> Extra · template</div><div class="timer-tag">extra</div></div>
-        <div class="content narrow" style="align-self: start; padding-top: 10px;">
-          <div class="kicker">Template reutilizável</div>
-          <h2 style="font-size: clamp(34px, 4vw, 58px); max-width: 900px;">Template de prompt profissional</h2>
-          <p class="lead" style="font-size: clamp(18px, 1.6vw, 24px); margin-top: 16px; max-width: 860px;">Estrutura simples para transformar pedidos genéricos em interações técnicas mais previsíveis e úteis.</p>
-  
-          <pre style="margin-top: 26px; font-size: clamp(13px, 1.05vw, 17px); line-height: 1.35; padding: 18px; max-height: 52vh; overflow: auto;">Você é meu par técnico para revisar uma solução.
-  
-  Objetivo:
-  [descreva o resultado esperado]
-  
-  Contexto:
-  [cole apenas o necessário]
-  
-  Restrições:
-  [tecnologia, padrões, riscos, convenções]
-  
-  Tarefa:
-  Primeiro critique a solução.
-  Depois proponha melhorias.
-  Não gere código ainda.
-  
-  Critérios de avaliação:
-  - clareza
-  - simplicidade
-  - aderência ao padrão
-  - riscos técnicos
-  - manutenibilidade</pre>
-  
-          <div class="speaker-note">Use este slide se sobrar tempo ou como material de apoio. A ideia é mostrar que prompt profissional é estrutura e clareza, não texto mágico.</div>
-        </div>
-        <div class="footer"><span></span><span>20</span></div>
-      </section>
+      <div class="topbar"><div class="brand"><span class="brand-mark"></span> Extra · template</div><div class="timer-tag">extra · 1/2</div></div>
+      <div class="content narrow">
+        <div class="kicker">Template reutilizável</div>
+        <h2 class="template-heading">Template de prompt profissional</h2>
+        <p class="lead template-lead">Estrutura simples para transformar pedidos genéricos em interações técnicas mais previsíveis e úteis.</p>
+        <pre class="template-pre">Você é meu par técnico para revisar uma solução.
+
+Objetivo:
+[descreva o resultado esperado]
+
+Contexto:
+[cole apenas o necessário]
+
+Restrições:
+[tecnologia, padrões, riscos, convenções]</pre>
+        <div class="speaker-note">Use estes slides se sobrar tempo ou como material de apoio. A ideia é mostrar que prompt profissional é estrutura e clareza, não texto mágico.</div>
+      </div>
+      <div class="footer"><span></span><span>20</span></div>
+    </section>
+
+    <section class="slide" data-title="Prompt template (continuação)" data-min="extra">
+      <div class="topbar"><div class="brand"><span class="brand-mark"></span> Extra · template</div><div class="timer-tag">extra · 2/2</div></div>
+      <div class="content narrow">
+        <div class="kicker">Template reutilizável</div>
+        <h2 class="template-heading">Tarefa e critérios</h2>
+        <pre class="template-pre">Tarefa:
+Primeiro critique a solução.
+Depois proponha melhorias.
+Não gere código ainda.
+
+Critérios de avaliação:
+- clareza
+- simplicidade
+- aderência ao padrão
+- riscos técnicos
+- manutenibilidade</pre>
+      </div>
+      <div class="footer"><span></span><span>21</span></div>
+    </section>
 
     <section class="slide" data-title="Referências" data-min="extra">
       <div class="topbar"><div class="brand"><span class="brand-mark"></span> Referências</div><div class="timer-tag">extra</div></div>
@@ -901,38 +1280,127 @@ Conversa 5: preparar comunicação</pre>
           <p><a href="https://www.washingtonpost.com/technology/2026/01/27/anthropic-ai-scan-destroy-books/" target="_blank" rel="noreferrer">Washington Post · Project Panama</a> — reportagem sobre aquisição e escaneamento destrutivo de livros pela Anthropic.</p>
         </div>
       </div>
-      <div class="footer"><span></span><span>21</span></div>
+      <div class="footer"><span></span><span>22</span></div>
     </section>
   </main>
 
+  <p class="slide-title-bar" id="slideTitleBar" aria-hidden="true"></p>
+  <p class="sr-only" id="slideAnnouncer" aria-live="polite" aria-atomic="true"></p>
+
+  <aside class="notes-panel" id="notesPanel" aria-label="Notas do apresentador" hidden>
+    <div class="notes-panel-header">
+      <span class="notes-panel-label">Notas do apresentador</span>
+      <span class="notes-panel-title" id="notesPanelTitle"></span>
+    </div>
+    <div class="notes-panel-body" id="notesPanelBody"></div>
+  </aside>
+
+  <nav class="pagination" id="pagination" aria-label="Navegação por slides"></nav>
+
   <div class="controls" aria-label="Controles da apresentação">
-    <button id="prevBtn" type="button">←</button>
-    <button id="nextBtn" type="button">→</button>
-    <button id="notesBtn" type="button">Notas</button>
+    <button id="prevBtn" type="button" aria-label="Slide anterior">←</button>
+    <button id="nextBtn" type="button" aria-label="Próximo slide">→</button>
+    <button id="notesBtn" type="button" aria-label="Mostrar notas do apresentador" aria-pressed="false">Notas</button>
   </div>
-  <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="progress" role="progressbar" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1" id="progressTrack">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
   <script>
     const slides = Array.from(document.querySelectorAll('.slide'));
     const progressBar = document.getElementById('progressBar');
+    const progressTrack = document.getElementById('progressTrack');
     const nextBtn = document.getElementById('nextBtn');
     const prevBtn = document.getElementById('prevBtn');
     const notesBtn = document.getElementById('notesBtn');
+    const slideTitleBar = document.getElementById('slideTitleBar');
+    const slideAnnouncer = document.getElementById('slideAnnouncer');
+    const notesPanel = document.getElementById('notesPanel');
+    const notesPanelTitle = document.getElementById('notesPanelTitle');
+    const notesPanelBody = document.getElementById('notesPanelBody');
+    const pagination = document.getElementById('pagination');
 
     let current = Number(new URLSearchParams(window.location.search).get('slide')) || 0;
+    let notesVisible = false;
+
+    progressTrack.setAttribute('aria-valuemax', String(slides.length));
+
+    slides.forEach((slide, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'pagination-dot';
+      dot.setAttribute('aria-label', `Ir para slide ${index + 1}: ${slide.dataset.title || ''}`);
+      dot.addEventListener('click', () => goTo(index));
+      pagination.appendChild(dot);
+    });
+
+    const paginationDots = Array.from(pagination.querySelectorAll('.pagination-dot'));
 
     function clamp(value, min, max) {
       return Math.max(min, Math.min(max, value));
     }
 
+    function syncNotesPanel() {
+      const slide = slides[current];
+      const title = slide.dataset.title || `Slide ${current + 1}`;
+      const noteEl = slide.querySelector('.speaker-note');
+      const noteText = noteEl ? noteEl.textContent.trim() : '';
+
+      notesPanelTitle.textContent = title;
+      notesPanelBody.textContent = noteText || 'Este slide não tem notas.';
+      notesPanelBody.classList.toggle('notes-panel-empty', !noteText);
+
+      if (notesVisible) {
+        notesPanel.hidden = false;
+      }
+    }
+
+    function setNotesVisible(visible) {
+      notesVisible = visible;
+      document.body.classList.toggle('show-notes', visible);
+      notesBtn.setAttribute('aria-pressed', String(visible));
+      notesPanel.hidden = !visible;
+      if (visible) {
+        syncNotesPanel();
+      }
+    }
+
+    function toggleNotes() {
+      setNotesVisible(!notesVisible);
+    }
+
+    function goTo(index) {
+      current = index;
+      update();
+    }
+
     function update() {
       current = clamp(current, 0, slides.length - 1);
-      slides.forEach((slide, index) => {
-        slide.classList.toggle('active', index === current);
+      const slide = slides[current];
+      const title = slide.dataset.title || `Slide ${current + 1}`;
+      const slideNum = String(current + 1).padStart(2, '0');
+
+      slides.forEach((s, index) => {
+        s.classList.toggle('active', index === current);
+      });
+
+      paginationDots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === current);
+        dot.setAttribute('aria-current', index === current ? 'true' : 'false');
       });
 
       const progress = ((current + 1) / slides.length) * 100;
       progressBar.style.width = `${progress}%`;
+      progressTrack.setAttribute('aria-valuenow', String(current + 1));
+      progressTrack.setAttribute('aria-valuetext', `Slide ${current + 1} de ${slides.length}: ${title}`);
+
+      slideTitleBar.textContent = `${title} · ${slideNum}/${String(slides.length).padStart(2, '0')}`;
+      slideAnnouncer.textContent = `Slide ${current + 1} de ${slides.length}: ${title}`;
+
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+
+      syncNotesPanel();
 
       const url = new URL(window.location);
       url.searchParams.set('slide', String(current));
@@ -940,17 +1408,17 @@ Conversa 5: preparar comunicação</pre>
     }
 
     function next() {
-      current += 1;
-      update();
+      if (current < slides.length - 1) {
+        current += 1;
+        update();
+      }
     }
 
     function prev() {
-      current -= 1;
-      update();
-    }
-
-    function toggleNotes() {
-      document.body.classList.toggle('show-notes');
+      if (current > 0) {
+        current -= 1;
+        update();
+      }
     }
 
     document.addEventListener('keydown', (event) => {
@@ -964,17 +1432,19 @@ Conversa 5: preparar comunicação</pre>
         prev();
       }
       if (key === 'home') {
-        current = 0;
-        update();
+        event.preventDefault();
+        goTo(0);
       }
       if (key === 'end') {
-        current = slides.length - 1;
-        update();
+        event.preventDefault();
+        goTo(slides.length - 1);
       }
       if (key === 'n') {
+        event.preventDefault();
         toggleNotes();
       }
       if (key === 'f') {
+        event.preventDefault();
         document.documentElement.requestFullscreen?.();
       }
     });
